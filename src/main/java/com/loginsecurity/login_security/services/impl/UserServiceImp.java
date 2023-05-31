@@ -124,6 +124,14 @@ public class UserServiceImp implements UserService {
 
 	    userRepository.save(optionalUser);
 	}
+	
+	//Revisar
+	
+	public boolean verifyPassword(String password, String hash) {
+		boolean verified= Password.check(password, hash).withArgon2();
+		return false;
+		
+	}
 
 
 }
