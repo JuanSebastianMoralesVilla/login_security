@@ -2,6 +2,7 @@ package com.loginsecurity.login_security.services.impl;
 
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +46,7 @@ public class UserServiceImp implements UserService {
 
 	// Listar por id
 	@Override
-	public Optional<User> findById(Long id) {
+	public Optional<User> findById(long id) {
 		return userRepository.findById(id);
 	}
 
@@ -131,6 +132,19 @@ public class UserServiceImp implements UserService {
 		boolean verified= Password.check(password, hash).withArgon2();
 		return false;
 		
+	}
+
+	@Override
+	public String getLastLogin(Long userId){
+		if(!userRepository.findByLastLogin(userId).isEmpty()){
+			if(userRepository.findByLastLogin(userId).get().getLastLogin() != null) {
+				return userRepository.findByLastLogin(userId).get().getLastLogin().toString();
+			}else{
+				return null;
+			}
+		}else{
+			return "";
+		}
 	}
 
 

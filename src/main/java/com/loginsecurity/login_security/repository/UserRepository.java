@@ -20,6 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	User findByUsername(String username);
 
 	// Buscar usuario por ultimo login
-	User findByLastLogin(LocalDateTime lastLogin);
+	@Query("SELECT u.lastLogin FROM User u WHERE u.id = ?1")
+	Optional<User> findByLastLogin(long id);
 
 }

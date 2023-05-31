@@ -1,5 +1,6 @@
 package com.loginsecurity.login_security.services.inter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +12,7 @@ public interface UserService {
 
 	User findByUsername(String username);
 
-	Optional<User> findById(Long id);
+	Optional<User> findById(long id);
 
 	void deleteUser(Long id);
 
@@ -50,6 +51,8 @@ public interface UserService {
 
 
 	void changePassword(Long userId, User user);
+
+	String getLastLogin(Long userId);
 
 
 
