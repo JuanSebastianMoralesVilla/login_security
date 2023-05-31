@@ -35,17 +35,18 @@ public class UserController {
 	    }
 	}
 	
-	@PutMapping("/change-password")
-	public ResponseEntity<String> changePassword(User userp, @RequestParam String newPassword) {
-	    String username = userp.getUsername();
-	    User user = userService.findByUsername(username);
-
-	    try {
-	        userService.changePassword(user.getId(), newPassword);
-	        return ResponseEntity.ok("Contraseña cambiada con éxito.");
-	    } catch (IllegalArgumentException e) {
-	        return ResponseEntity.badRequest().body("Error al cambiar la contraseña: " + e.getMessage());
+	  @PutMapping("/{userId}/change-password")
+	    public ResponseEntity<String> changePassword(
+	            @PathVariable Long userId,
+	            @RequestBody User user) {
+	        try {
+	            userService.changePassword(userId, user);
+	            return ResponseEntity.ok("Contraseña cambiada con éxito."+ " Nueva contraseña (Sin hash):" + user.getPassword());
+	        } catch (IllegalArgumentException e) {
+	            return ResponseEntity.badRequest().body("Error al cambiar la contraseña: " + e.getMessage());
+	        }
 	    }
-	}
 
+	
+	
 }

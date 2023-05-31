@@ -13,10 +13,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.loginsecurity.login_security.model.User;
+
 import com.loginsecurity.login_security.repository.UserRepository;
 import com.loginsecurity.login_security.services.inter.UserService;
 import com.password4j.Hash;
 import com.password4j.Password;
+
+
 
 @Service
 
@@ -36,6 +39,9 @@ public class UserServiceImp implements UserService {
 	public User findByUsername(String username) {
 		return userRepository.findByUsername(username);
 	}
+	
+	
+
 
 	// Listar por id
 	@Override
@@ -43,7 +49,9 @@ public class UserServiceImp implements UserService {
 		return userRepository.findById(id);
 	}
 
-	// Eliminar usuario
+	/**
+	 * Eliminar usuario
+	 */
 	@Override
 	public void deleteUser(Long id) {
 
@@ -89,26 +97,6 @@ public class UserServiceImp implements UserService {
 	}
 
 	/**
-	 * 
-	 * @param userId
-	 * @param newPassword
-	 * 
-	 */
-	@Override
-	public void changePassword(Long userId, String newPassword) {
-
-		User user = userRepository.findById(userId).get();
-		if (user != null) {
-			String hashedPassword = hashPassword(newPassword);
-			user.setPassword(hashedPassword);
-
-			userRepository.save(user);
-
-		}
-
-	}
-
-	/**
 	 * Encripta una contraseña utilizando el algoritmo PBKDF2
 	 * 
 	 * @param password Contraseña a encriptar
@@ -117,10 +105,25 @@ public class UserServiceImp implements UserService {
 	 */
 	@Override
 	public String hashPassword(String password) {
-		
-		Hash hash = Password.hash(password).addRandomSalt().withPBKDF2();
+
+		Hash hash = Password.hash(password).addRandomSalt(3).withPBKDF2();
 
 		return hash.getResult();
 	}
+	
+	
+	
+
+	@Override
+	public void changePassword(Long userId, User user) {
+	    User optionalUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("No se encontró ningún usuario con el ID proporcionado."));
+
+	    String newPassword = user.getPassword();
+	    String hashedPassword = hashPassword(newPassword);
+	    optionalUser.setPassword(hashedPassword);
+
+	    userRepository.save(optionalUser);
+	}
+
 
 }
