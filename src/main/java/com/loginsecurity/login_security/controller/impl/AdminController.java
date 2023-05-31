@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.loginsecurity.login_security.model.User;
-import com.loginsecurity.login_security.services.impl.UserServiceImp;
+
 import com.loginsecurity.login_security.services.inter.UserService;
 @Controller
 @RestController

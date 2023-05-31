@@ -1,10 +1,10 @@
 package com.loginsecurity.login_security.repository;
 
-import java.sql.Timestamp;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.hibernate.mapping.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
