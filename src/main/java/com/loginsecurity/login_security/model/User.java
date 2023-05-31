@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Table(name = "LOGIN_USER")
-@NamedQuery(name = "LOGIN_USER.findAll", query = "SELECT LOGIN_USER FROM  s")
+//@NamedQuery(name = "LOGIN_USER.findAll", query = "SELECT LOGIN_USER FROM  s")
 public class User implements Serializable {
 
 	
@@ -38,6 +38,7 @@ public class User implements Serializable {
 	
 	@Column(name = "password")
 	private String password;
+	
 	@Column(name = "last_login")
 	private LocalDateTime lastLogin;
 	

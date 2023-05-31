@@ -1,6 +1,7 @@
-package com.loginsecurity.login_security.repositories;
+package com.loginsecurity.login_security.repository;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.hibernate.mapping.List;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.loginsecurity.login_security.model.User;
 
-
+@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
 	// Buscar usuario por id
@@ -19,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		User findByUsername(String username);
 
 	//Buscar usuario por ultimo login
-		User findByLastLogin(Timestamp lastLogin);
+		User findByLastLogin(LocalDateTime lastLogin);
     
 
 }

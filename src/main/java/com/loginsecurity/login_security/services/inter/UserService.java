@@ -1,4 +1,4 @@
-package com.loginsecurity.login_security.services.interfaces;
+package com.loginsecurity.login_security.services.inter;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package com.loginsecurity.login_security.controller.imp;
+package com.loginsecurity.login_security.controller.impl;
 
 import java.time.LocalDateTime;
 
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.loginsecurity.login_security.model.User;
-import com.loginsecurity.login_security.services.imp.UserServiceImp;
-import com.loginsecurity.login_security.services.interfaces.UserService;
+import com.loginsecurity.login_security.services.impl.UserServiceImp;
+import com.loginsecurity.login_security.services.inter.UserService;
 
 @Controller
 @RequestMapping("/user")

@@ -1,4 +1,4 @@
-package com.loginsecurity.login_security.services.imp;
+package com.loginsecurity.login_security.services.impl;
 
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.loginsecurity.login_security.model.User;
-import com.loginsecurity.login_security.repositories.UserRepository;
-import com.loginsecurity.login_security.services.interfaces.UserService;
+import com.loginsecurity.login_security.repository.UserRepository;
+import com.loginsecurity.login_security.services.inter.UserService;
 import com.password4j.Hash;
 import com.password4j.Password;
 
