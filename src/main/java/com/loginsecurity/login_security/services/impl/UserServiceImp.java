@@ -131,10 +131,11 @@ public class UserServiceImp implements UserService {
 	public Optional<UserApp> login(String username, String password){
 		Optional<UserApp> user = userRepository.findByUsername(username);
 		Optional<UserApp> userR = null;
-		UserApp u = user.get();
+
 		String pass = hashPassword(password);
 		System.out.println("Aca1");
 		if(user.isPresent()){
+			UserApp u = user.get();
 			System.out.println("Aca2");
 			System.out.println("pass "+pass +" /userp "+user.get().getPassword());
 			if(user.get().getPassword().equals(pass)){

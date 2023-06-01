@@ -46,7 +46,7 @@ public class AdminController {
 	@GetMapping("/users/{username}")
 	public ResponseEntity<UserApp> getUserByUsername(@PathVariable String username) {
 		Optional<UserApp> userApp = userService.findByUsername(username);
-		if (!userApp.isPresent()) {
+		if (userApp.isPresent()) {
 			return ResponseEntity.ok(userApp.get());
 		} else {
 			return ResponseEntity.notFound().build();
@@ -55,9 +55,9 @@ public class AdminController {
 
 	@GetMapping("/{userid}")
 	public ResponseEntity<UserApp> getUserById(@PathVariable Long userid) {
-		UserApp userApp = userService.findById(userid).get();
-		if (userApp != null) {
-			return ResponseEntity.ok(userApp);
+	Optional<UserApp> userApp = userService.findById(userid);
+		if (userApp.isPresent()) {
+			return ResponseEntity.ok(userApp.get());
 		} else {
 			return ResponseEntity.notFound().build();
 		}
