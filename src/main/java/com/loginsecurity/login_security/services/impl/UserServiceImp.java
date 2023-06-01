@@ -18,149 +18,176 @@ import com.password4j.Password;
 
 
 @Service
-
 public class UserServiceImp implements UserService {
 
-	@Autowired
-	UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
-	// Listar todos los usuarios
-	@Override
-	public List<UserApp> getAllUsers() {
-		return userRepository.findAll();
-	}
+    /**
+     * Devuelve una lista de todos los usuarios.
+     *
+     * @return Lista de usuarios
+     */
+    @Override
+    public List<UserApp> getAllUsers() {
+        return userRepository.findAll();
+    }
 
-	// Buscar por nombre un usuario
-	@Override
-	public Optional<UserApp> findByUsername(String username) {
-		return userRepository.findByUsername(username);
-	}
-	
-	// Listar por id
-	@Override
-	public Optional<UserApp> findById(long id) {
-		return userRepository.findById(id);
-	}
+    /**
+     * Busca un usuario por su nombre de usuario.
+     *
+     * @param username Nombre de usuario
+     * @return Usuario encontrado (si existe)
+     */
+    @Override
+    public Optional<UserApp> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 
-	/**
-	 * Eliminar usuario
-	 */
-	@Override
-	public void deleteUser(Long id) {
+    /**
+     * Busca un usuario por su ID.
+     *
+     * @param id ID del usuario
+     * @return Usuario encontrado (si existe)
+     */
+    @Override
+    public Optional<UserApp> findById(long id) {
+        return userRepository.findById(id);
+    }
 
-		userRepository.deleteById(id);
+    /**
+     * Elimina un usuario por su ID.
+     *
+     * @param id ID del usuario a eliminar
+     */
+    @Override
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
 
-	}
+    /**
+     * Agrega un nuevo usuario.
+     *
+     * @param userApp Usuario a agregar
+     * @return Usuario agregado exitosamente
+     * @throws IllegalArgumentException si el nombre de usuario ya está en uso
+     */
+    @Override
+    public UserApp addUser(UserApp userApp) {
+        byte[] salt = generateSalt(17);
+        String saltHex = bytesToHex(salt);
 
-	/**
-	 * Agregar usuario
-	 * 
-	 * @param userApp
-	 * @return la creacion de un nuevo usuario
-	 */
-	@Override
-	public UserApp addUser(UserApp userApp) {
-		byte[] salt= generateSalt(17);
-		String saltHex=bytesToHex(salt);
-		
-		Optional<UserApp> existingUseruserName = userRepository.findByUsername(userApp.getUsername().trim());
-		if (existingUseruserName.isPresent()) {
-			throw new IllegalArgumentException("El nombre de usuario ya esta en uso");
-		}
-		String hashedPassword = hashPassword(userApp.getPassword(),salt);
-		
-		userApp.setPassword(hashedPassword);
+        Optional<UserApp> existingUseruserName = userRepository.findByUsername(userApp.getUsername().trim());
+        if (existingUseruserName.isPresent()) {
+            throw new IllegalArgumentException("El nombre de usuario ya está en uso");
+        }
+        String hashedPassword = hashPassword(userApp.getPassword(), salt);
+
+        userApp.setPassword(hashedPassword);
         userApp.setUserKey(saltHex);
-		UserApp newUserApp = userRepository.save(userApp);
-		return newUserApp;
+        UserApp newUserApp = userRepository.save(userApp);
+        return newUserApp;
+    }
 
-	}
+    /**
+     * Restablece la contraseña de un usuario a un valor en blanco.
+     *
+     * @param userId ID del usuario
+     */
+    @Override
+    public void resetUserPassword(Long userId) {
+        UserApp userApp = userRepository.findById(userId).orElse(null);
+        if (userApp != null) {
+            userApp.setPassword("");
+            userRepository.save(userApp);
+        }
+    }
 
-	
-	
-	/**
-	 * Poner en blanco la contraseña de un usuario
-	 * 
-	 * @param userId
-	 * 
-	 */
-	@Override
+    /**
+     * Encripta una contraseña utilizando el algoritmo PBKDF2.
+     *
+     * @param password Contraseña a encriptar
+     * @param salt     Sal utilizada en la encriptación
+     * @return Contraseña encriptada
+     */
+    @Override
+    public String hashPassword(String password, byte[] salt) {
+        Hash hash = Password.hash(password).addSalt(salt).withPBKDF2();
+        return hash.getResult();
+    }
 
-	public void resetUserPassword(Long userId) {
-		UserApp userApp = userRepository.findById(userId).orElse(null);
-		if (userApp != null) {
-			userApp.setPassword("");
-			userRepository.save(userApp);
-		}
-	}
+    /**
+     * Cambia la contraseña de un usuario.
+     *
+     * @param userId   ID del usuario
+     * @param userApp  Usuario con la nueva contraseña
+     */
+    @Override
+    public void changePassword(Long userId, UserApp userApp) {
+        UserApp optionalUserApp = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró ningún usuario con el ID proporcionado."));
 
-	/**
-	 * Encripta una contraseña utilizando el algoritmo PBKDF2
-	 * 
-	 * @param password Contraseña a encriptar
-	 * 
-	 * @return contraseña encriptada
-	 */
-	@Override
-	public String hashPassword(String password, byte[] salt) {
+        String newPassword = userApp.getPassword();
+        byte[] salt = hexToBytes(optionalUserApp.getUserKey());
+        String hashedPassword = hashPassword(newPassword, salt);
+        optionalUserApp.setPassword(hashedPassword);
 
-		
+        userRepository.save(optionalUserApp);
+    }
 
-		Hash hash = Password.hash(password).addSalt(salt).withPBKDF2();
+    /**
+     * Verifica si una contraseña coincide con un hash.
+     *
+     * @param password Contraseña a verificar
+     * @param hash     Hash de referencia
+     * @return `true` si la contraseña coincide, `false` en caso contrario
+     */
+    public boolean verifyPassword(String password, String hash) {
+        boolean verified = Password.check(password, hash).withArgon2();
+        return false;
+    }
 
-		return hash.getResult();
-	}
-	
-	
-	
+    /**
+     * Realiza el proceso de inicio de sesión para un usuario.
+     *
+     * @param username Nombre de usuario
+     * @param password Contraseña
+     * @return Usuario si el inicio de sesión fue exitoso, o un `Optional` vacío
+     */
+    public Optional<UserApp> login(String username, String password) {
+        Optional<UserApp> user = userRepository.findByUsername(username);
+        Optional<UserApp> userR = null;
 
-	@Override
-	public void changePassword(Long userId, UserApp userApp) {
-	    UserApp optionalUserApp = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("No se encontró ningún usuario con el ID proporcionado."));
+        System.out.println("entre"+password);
+        if (user.isPresent()) {
+        	byte[] saltByte = hexToBytes(user.get().getUserKey());
 
-	    String newPassword = userApp.getPassword();
-	    byte[] salt=hexToBytes(optionalUserApp.getUserKey());
-	    String hashedPassword = hashPassword(newPassword,salt);
-	    optionalUserApp.setPassword(hashedPassword);
+        	String pass= password;
+        	if(password!= "") {
+        	
+            pass = hashPassword(password, saltByte);
+            
+            
+        	}
+        
+            UserApp u = user.get();
+            if (user.get().getPassword().equals(pass)) {
+                userR = user;
+                u.setLastLogin(LocalDateTime.now());
+                userRepository.save(u);
+            }
+        	
+        }
+        return userR;
+    }
 
-	    userRepository.save(optionalUserApp);
-	}
-	
-	//Revisar
-	
-	public boolean verifyPassword(String password, String hash) {
-		boolean verified= Password.check(password, hash).withArgon2();
-		return false;
-		
-	}
-
-
-	public Optional<UserApp> login(String username, String password){
-		Optional<UserApp> user = userRepository.findByUsername(username);
-		Optional<UserApp> userR = null;
-
-		
-
-		System.out.println("Aca1");
-		if(user.isPresent()){
-			byte[] saltByte= hexToBytes(user.get().getUserKey());
-			String pass = hashPassword(password,saltByte);
-			
-			UserApp u = user.get();
-			System.out.println("Aca2");
-			System.out.println("pass "+pass +" /userp "+user.get().getPassword());
-			if(user.get().getPassword().equals(pass)){
-				System.out.println("Aca3");
-				userR = user;
-				u.setLastLogin(LocalDateTime.now());
-				userRepository.save(u);
-			}
-		}
-		return userR;
-	}
-
-	
-	private static byte[] generateSalt(int length) {
+    /**
+     * Genera una sal aleatoria como una matriz de bytes.
+     *
+     * @param length Longitud de la sal
+     * @return Sal generada
+     */
+    private static byte[] generateSalt(int length) {
         byte[] salt = new byte[length];
         try {
             SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
@@ -170,8 +197,14 @@ public class UserServiceImp implements UserService {
         }
         return salt;
     }
-	
-	private static byte[] hexToBytes(String hex) {
+
+    /**
+     * Convierte una cadena hexadecimal en una matriz de bytes.
+     *
+     * @param hex Cadena hexadecimal
+     * @return Matriz de bytes
+     */
+    private static byte[] hexToBytes(String hex) {
         int length = hex.length();
         byte[] bytes = new byte[length / 2];
         for (int i = 0; i < length; i += 2) {
@@ -180,15 +213,18 @@ public class UserServiceImp implements UserService {
         }
         return bytes;
     }
-	
-	
-	private static String bytesToHex(byte[] bytes) {
+
+    /**
+     * Convierte una matriz de bytes en una cadena hexadecimal.
+     *
+     * @param bytes Matriz de bytes
+     * @return Cadena hexadecimal
+     */
+    private static String bytesToHex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
         for (byte b : bytes) {
             result.append(String.format("%02x", b));
         }
         return result.toString();
     }
-
-	
 }
