@@ -1,19 +1,12 @@
 package com.loginsecurity.login_security.services.impl;
 
-import java.security.SecureRandom;
-import java.security.spec.KeySpec;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-
+import com.loginsecurity.login_security.model.UserApp;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
-
-import com.loginsecurity.login_security.model.User;
 
 import com.loginsecurity.login_security.repository.UserRepository;
 import com.loginsecurity.login_security.services.inter.UserService;
@@ -31,13 +24,13 @@ public class UserServiceImp implements UserService {
 
 	// Listar todos los usuarios
 	@Override
-	public List<User> getAllUsers() {
+	public List<UserApp> getAllUsers() {
 		return userRepository.findAll();
 	}
 
 	// Buscar por nombre un usuario
 	@Override
-	public User findByUsername(String username) {
+	public Optional<UserApp> findByUsername(String username) {
 		return userRepository.findByUsername(username);
 	}
 	
@@ -46,7 +39,7 @@ public class UserServiceImp implements UserService {
 
 	// Listar por id
 	@Override
-	public Optional<User> findById(long id) {
+	public Optional<UserApp> findById(long id) {
 		return userRepository.findById(id);
 	}
 
@@ -63,21 +56,21 @@ public class UserServiceImp implements UserService {
 	/**
 	 * Agregar usuario
 	 * 
-	 * @param user
+	 * @param userApp
 	 * @return la creacion de un nuevo usuario
 	 */
 	@Override
-	public User addUser(User user) {
+	public UserApp addUser(UserApp userApp) {
 
-		User existingUseruserName = userRepository.findByUsername(user.getUsername().trim());
-		if (existingUseruserName != null) {
+		Optional<UserApp> existingUseruserName = userRepository.findByUsername(userApp.getUsername().trim());
+		if (existingUseruserName.isPresent()) {
 			throw new IllegalArgumentException("El nombre de usuario ya esta en uso");
 		}
-		String hashedPassword = hashPassword(user.getPassword());
-		user.setPassword(hashedPassword);
+		String hashedPassword = hashPassword(userApp.getPassword());
+		userApp.setPassword(hashedPassword);
 
-		User newUser = userRepository.save(user);
-		return newUser;
+		UserApp newUserApp = userRepository.save(userApp);
+		return newUserApp;
 
 	}
 
@@ -90,10 +83,10 @@ public class UserServiceImp implements UserService {
 	@Override
 
 	public void resetUserPassword(Long userId) {
-		User user = userRepository.findById(userId).orElse(null);
-		if (user != null) {
-			user.setPassword("");
-			userRepository.save(user);
+		UserApp userApp = userRepository.findById(userId).orElse(null);
+		if (userApp != null) {
+			userApp.setPassword("");
+			userRepository.save(userApp);
 		}
 	}
 
@@ -107,7 +100,7 @@ public class UserServiceImp implements UserService {
 	@Override
 	public String hashPassword(String password) {
 
-		Hash hash = Password.hash(password).addRandomSalt(3).withPBKDF2();
+		Hash hash = Password.hash(password).addSalt("abc123").withPBKDF2();
 
 		return hash.getResult();
 	}
@@ -116,14 +109,14 @@ public class UserServiceImp implements UserService {
 	
 
 	@Override
-	public void changePassword(Long userId, User user) {
-	    User optionalUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("No se encontró ningún usuario con el ID proporcionado."));
+	public void changePassword(Long userId, UserApp userApp) {
+	    UserApp optionalUserApp = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("No se encontró ningún usuario con el ID proporcionado."));
 
-	    String newPassword = user.getPassword();
+	    String newPassword = userApp.getPassword();
 	    String hashedPassword = hashPassword(newPassword);
-	    optionalUser.setPassword(hashedPassword);
+	    optionalUserApp.setPassword(hashedPassword);
 
-	    userRepository.save(optionalUser);
+	    userRepository.save(optionalUserApp);
 	}
 	
 	//Revisar
@@ -134,18 +127,26 @@ public class UserServiceImp implements UserService {
 		
 	}
 
-	@Override
-	public String getLastLogin(Long userId){
-		if(!userRepository.findByLastLogin(userId).isEmpty()){
-			if(userRepository.findByLastLogin(userId).get().getLastLogin() != null) {
-				return userRepository.findByLastLogin(userId).get().getLastLogin().toString();
-			}else{
-				return null;
+
+	public Optional<UserApp> login(String username, String password){
+		Optional<UserApp> user = userRepository.findByUsername(username);
+		Optional<UserApp> userR = null;
+		UserApp u = user.get();
+		String pass = hashPassword(password);
+		System.out.println("Aca1");
+		if(user.isPresent()){
+			System.out.println("Aca2");
+			System.out.println("pass "+pass +" /userp "+user.get().getPassword());
+			if(user.get().getPassword().equals(pass)){
+				System.out.println("Aca3");
+				userR = user;
+				u.setLastLogin(LocalDateTime.now());
+				userRepository.save(u);
 			}
-		}else{
-			return "";
 		}
+		return userR;
 	}
+
 
 
 }

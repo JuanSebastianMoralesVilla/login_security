@@ -1,28 +1,27 @@
 package com.loginsecurity.login_security.services.inter;
 
-import java.time.LocalDateTime;
+import com.loginsecurity.login_security.model.UserApp;
+
 import java.util.List;
 import java.util.Optional;
 
-import com.loginsecurity.login_security.model.User;
-
 public interface UserService {
 
-	List<User> getAllUsers();
+	List<UserApp> getAllUsers();
 
-	User findByUsername(String username);
+	Optional<UserApp> findByUsername(String username);
 
-	Optional<User> findById(long id);
+	Optional<UserApp> findById(long id);
 
 	void deleteUser(Long id);
 
 	/**
 	 * Agregar usuario
 	 * 
-	 * @param user
+	 * @param userApp
 	 * @return la creacion de un nuevo usuario
 	 */
-	User addUser(User user);
+	UserApp addUser(UserApp userApp);
 
 	/**
 	 * Poner en blanco la contraseña de un usuario
@@ -50,10 +49,10 @@ public interface UserService {
 	 */
 
 
-	void changePassword(Long userId, User user);
+	void changePassword(Long userId, UserApp userApp);
 
-	String getLastLogin(Long userId);
 
+	Optional<UserApp> login(String user, String password);
 
 
 	
