@@ -19,18 +19,6 @@ public class UserController {
 	UserService userService;
 
 
-	@GetMapping("/login")
-	public ResponseEntity<UserApp> login(@RequestBody UserApp userP) {
-		try {
-			Optional<UserApp> user = userService.login(userP.getUsername(),userP.getPassword());
-			return ResponseEntity.ok(user.get());
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.notFound().build();
-		}catch (NullPointerException r){
-			return ResponseEntity.status(403).build();
-		}
-	}
-
 	@PutMapping("/{userId}/change-password")
 	public ResponseEntity<String> changePassword(
 			@PathVariable Long userId,
