@@ -13,6 +13,7 @@ import com.loginsecurity.login_security.services.inter.UserService;
 @Controller
 @RestController
 @RequestMapping("/user")
+@CrossOrigin("*")
 public class UserController {
 
 	@Autowired

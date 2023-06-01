@@ -31,15 +31,6 @@ public interface UserService {
 	 */
 	void resetUserPassword(Long userId);
 
-
-	/**
-	 * Encripta una contraseña utilizando el algoritmo PBKDF2
-	 * 
-	 * @param password Contraseña a encriptar
-	 * 
-	 * @return contraseña encriptada
-	 */
-	String hashPassword(String password);
 	
 	/**
 	 * 
@@ -53,6 +44,15 @@ public interface UserService {
 
 
 	Optional<UserApp> login(String user, String password);
+
+	/**
+	 * Encripta una contraseña utilizando el algoritmo PBKDF2
+	 * 
+	 * @param password Contraseña a encriptar
+	 * 
+	 * @return contraseña encriptada
+	 */
+	String hashPassword(String password, byte[] salt);
 
 
 	
