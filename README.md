@@ -6,6 +6,7 @@
 - Ubicación: Cali
 - Año: 2023
 
+## Frontend: https://github.com/gonzalodevarona/FrontendSecurity.git
 
 ![08d1163f-bef8-42a5-ad37-edcda6a04379](https://github.com/JuanSebastianMoralesVilla/login_security/assets/54720084/a77677dc-7cf0-4c6d-8439-d59dfece79ec)
 
